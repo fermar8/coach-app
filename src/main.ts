@@ -5,6 +5,8 @@ import {
 } from '@nestjs/platform-fastify';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from '@fastify/helmet';
+import { ValidationPipe, BadRequestException } from '@nestjs/common';
+import { ValidationError } from 'class-validator';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -23,6 +25,14 @@ async function bootstrap() {
       },
     },
   });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory: (validationErrors: ValidationError[] = []) => {
+        return new BadRequestException(validationErrors);
+      },
+    }),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('Cats example')
