@@ -1,3 +1,3 @@
-const userTypes = ['admin', 'coach', 'player'];
+const userRolesTypes = ['admin', 'coach', 'player'];
 
-export { userTypes };
+export { userRolesTypes };

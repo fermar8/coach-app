@@ -1,18 +1,29 @@
 import { User as UserPrisma } from '@prisma/client';
-import { Exclude } from 'class-transformer';
+import { userRolesTypes } from './types';
+import { IsIn } from 'class-validator';
 
-class User implements UserPrisma {
+class UserEntity implements UserPrisma {
   id: number;
   name: string;
   surname: string;
   email: string;
   phone: string;
-
-  @Exclude()
   password: string;
+
+  admin?: UserEntityExtension | null;
+  coach?: UserEntityExtension | null;
+  player?: UserEntityExtension | null;
 
   createdAt: Date;
   updatedAt: Date;
 }
 
-export { User };
+class UserEntityExtension {
+  id: number;
+  userId: number;
+
+  @IsIn(userRolesTypes)
+  role: string;
+}
+
+export { UserEntity };

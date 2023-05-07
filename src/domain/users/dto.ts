@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, IsIn } from 'class-validator';
-import { userTypes } from './types';
+import { userRolesTypes } from './types';
 
 class CreateUserDto {
   @IsNotEmpty()
@@ -17,8 +17,8 @@ class CreateUserDto {
   @IsNotEmpty()
   password: string;
 
-  @IsIn(userTypes)
-  userType: string;
+  @IsIn(userRolesTypes)
+  role: string;
 }
 
 export { CreateUserDto };

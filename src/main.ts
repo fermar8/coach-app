@@ -5,7 +5,12 @@ import {
 } from '@nestjs/platform-fastify';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from '@fastify/helmet';
-import { ValidationPipe, BadRequestException } from '@nestjs/common';
+import {
+  ValidationPipe,
+  BadRequestException,
+  ClassSerializerInterceptor,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { ValidationError } from 'class-validator';
 import { AppModule } from './app.module';
 
@@ -34,11 +39,13 @@ async function bootstrap() {
     }),
   );
 
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+
   const config = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
-    .setVersion('1.0')
-    .addTag('cats')
+    .setTitle('Coach App')
+    .setDescription('Coach App API')
+    .setVersion('0.1')
+    .addTag('CoachApp')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

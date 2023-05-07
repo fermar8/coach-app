@@ -1,34 +1,13 @@
 import { Test } from '@nestjs/testing';
-import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { UsersController } from '../../../modules/users/users.controller';
+import { UsersService } from '../../../modules/users/users.service';
+import { PrismaService } from '../../../modules/prisma/prisma.service';
 
-import { CreateUserDto } from '../../domain/users/dto';
-import { User } from '@prisma/client';
+import { createUserDto, createUserResponse } from '../../__fixtures__/users';
 
 describe('UsersController', () => {
   let usersController: UsersController;
   let usersService: UsersService;
-
-  const createUserDto: CreateUserDto = {
-    name: 'John',
-    surname: 'Doe',
-    email: 'anemail@example.com',
-    phone: '555-555-5555',
-    password: '123456789',
-    userType: 'admin',
-  };
-
-  const user: User = {
-    id: 1,
-    name: createUserDto.name,
-    surname: createUserDto.surname,
-    email: createUserDto.email,
-    phone: createUserDto.phone,
-    password: createUserDto.password,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -41,10 +20,12 @@ describe('UsersController', () => {
   });
 
   describe('createUser', () => {
-    it('should create user successfully and return 201', async () => {
-      jest.spyOn(usersService, 'createUser').mockResolvedValue(user);
+    it('should create user successfully', async () => {
+      jest
+        .spyOn(usersService, 'createUser')
+        .mockResolvedValue(createUserResponse);
       const result = await usersController.createUser(createUserDto);
-      expect(result).toBe(user);
+      expect(result).toBe(createUserResponse);
     });
     /*
     it('should return error 400 when there is missing data in body', async () => {});
