@@ -1,6 +1,9 @@
 import { Test } from '@nestjs/testing';
-import { UsersController } from '../../../modules/users/users.controller';
-import { UsersService } from '../../../modules/users/users.service';
+import {
+  UsersController,
+  UsersService,
+  UsersRepository,
+} from '../../../modules/users';
 import { PrismaService } from '../../../modules/prisma/prisma.service';
 
 import { createUserDto, createUserResponse } from '../../__fixtures__/users';
@@ -12,7 +15,7 @@ describe('UsersController', () => {
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [UsersService, PrismaService],
+      providers: [UsersService, UsersRepository, PrismaService],
     }).compile();
 
     usersService = moduleRef.get<UsersService>(UsersService);

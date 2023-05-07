@@ -66,6 +66,24 @@ describe('UsersController (e2e)', () => {
       expect(createdUser.email).toBe(createUserDto.email);
       expect(createdUser.player.role).toBe(createUserDto.role);
     });
+    it('ERROR - should return an error if invalid body', async () => {
+      const invalidBody = {
+        invalidKey: 'invalidValue',
+      };
+      const response = await request(app.getHttpServer())
+        .post('/users')
+        .send(invalidBody)
+        .expect(HttpStatus.BAD_REQUEST);
+
+      expect(response.body.message).toStrictEqual([
+        'name should not be empty',
+        'surname should not be empty',
+        'email must be an email',
+        'phone should not be empty',
+        'password should not be empty',
+        'role must be one of the following values: admin, coach, player',
+      ]);
+    });
     it('ERROR - should return an error if repeated email', async () => {
       createUserDto.role = 'player';
       createUserDto.email = 'player@example.com';
@@ -73,9 +91,9 @@ describe('UsersController (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/users')
         .send(createUserDto)
-        .expect(HttpStatus.BAD_REQUEST);
+        .expect(HttpStatus.INTERNAL_SERVER_ERROR);
 
-      expect(response.body.message).toBe('Invalid User Role');
+      expect(response.body.message).toBe('Unique constraint violation');
     });
     it('ERROR - should return an error if invalid role', async () => {
       createUserDto.role = 'invalidRole';
@@ -86,7 +104,9 @@ describe('UsersController (e2e)', () => {
         .send(createUserDto)
         .expect(HttpStatus.BAD_REQUEST);
 
-      expect(response.body.message).toBe('Invalid User Role');
+      expect(response.body.message).toStrictEqual([
+        'role must be one of the following values: admin, coach, player',
+      ]);
     });
   });
 });
