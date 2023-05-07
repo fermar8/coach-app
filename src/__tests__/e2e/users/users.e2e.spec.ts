@@ -20,49 +20,73 @@ describe('UsersController (e2e)', () => {
     await app.close();
   });
 
-  it('SUCCESS - should create a new user with admin role', async () => {
-    const response = await request(app.getHttpServer())
-      .post('/users')
-      .send(createUserDto)
-      .expect(HttpStatus.CREATED);
+  describe('User Creation (e2e)', () => {
+    it('SUCCESS - should create a new user with admin role', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/users')
+        .send(createUserDto)
+        .expect(HttpStatus.CREATED);
 
-    const createdUser = response.body;
+      const createdUser = response.body;
 
-    expect(createdUser).toHaveProperty('id');
-    expect(createdUser.name).toBe(createUserDto.name);
-    expect(createdUser.email).toBe(createUserDto.email);
-    expect(createdUser.admin.role).toBe(createUserDto.role);
-  });
-  it('SUCCESS - should create a new user with coach role', async () => {
-    createUserDto.role = 'coach';
-    createUserDto.email = 'coach@example.com';
-    createUserDto.phone = '2234567890';
-    const response = await request(app.getHttpServer())
-      .post('/users')
-      .send(createUserDto)
-      .expect(HttpStatus.CREATED);
+      expect(createdUser).toHaveProperty('id');
+      expect(createdUser.name).toBe(createUserDto.name);
+      expect(createdUser.email).toBe(createUserDto.email);
+      expect(createdUser.admin.role).toBe(createUserDto.role);
+    });
+    it('SUCCESS - should create a new user with coach role', async () => {
+      createUserDto.role = 'coach';
+      createUserDto.email = 'coach@example.com';
+      createUserDto.phone = '2234567890';
+      const response = await request(app.getHttpServer())
+        .post('/users')
+        .send(createUserDto)
+        .expect(HttpStatus.CREATED);
 
-    const createdUser = response.body;
+      const createdUser = response.body;
 
-    expect(createdUser).toHaveProperty('id');
-    expect(createdUser.name).toBe(createUserDto.name);
-    expect(createdUser.email).toBe(createUserDto.email);
-    expect(createdUser.coach.role).toBe(createUserDto.role);
-  });
-  it('SUCCESS - should create a new user with player role', async () => {
-    createUserDto.role = 'player';
-    createUserDto.email = 'player@example.com';
-    createUserDto.phone = '3234567890';
-    const response = await request(app.getHttpServer())
-      .post('/users')
-      .send(createUserDto)
-      .expect(HttpStatus.CREATED);
+      expect(createdUser).toHaveProperty('id');
+      expect(createdUser.name).toBe(createUserDto.name);
+      expect(createdUser.email).toBe(createUserDto.email);
+      expect(createdUser.coach.role).toBe(createUserDto.role);
+    });
+    it('SUCCESS - should create a new user with player role', async () => {
+      createUserDto.role = 'player';
+      createUserDto.email = 'player@example.com';
+      createUserDto.phone = '3234567890';
+      const response = await request(app.getHttpServer())
+        .post('/users')
+        .send(createUserDto)
+        .expect(HttpStatus.CREATED);
 
-    const createdUser = response.body;
+      const createdUser = response.body;
 
-    expect(createdUser).toHaveProperty('id');
-    expect(createdUser.name).toBe(createUserDto.name);
-    expect(createdUser.email).toBe(createUserDto.email);
-    expect(createdUser.player.role).toBe(createUserDto.role);
+      expect(createdUser).toHaveProperty('id');
+      expect(createdUser.name).toBe(createUserDto.name);
+      expect(createdUser.email).toBe(createUserDto.email);
+      expect(createdUser.player.role).toBe(createUserDto.role);
+    });
+    it('ERROR - should return an error if repeated email', async () => {
+      createUserDto.role = 'player';
+      createUserDto.email = 'player@example.com';
+      createUserDto.phone = '5234567890';
+      const response = await request(app.getHttpServer())
+        .post('/users')
+        .send(createUserDto)
+        .expect(HttpStatus.BAD_REQUEST);
+
+      expect(response.body.message).toBe('Invalid User Role');
+    });
+    it('ERROR - should return an error if invalid role', async () => {
+      createUserDto.role = 'invalidRole';
+      createUserDto.email = 'invalidRole@example.com';
+      createUserDto.phone = '4234567890';
+      const response = await request(app.getHttpServer())
+        .post('/users')
+        .send(createUserDto)
+        .expect(HttpStatus.BAD_REQUEST);
+
+      expect(response.body.message).toBe('Invalid User Role');
+    });
   });
 });

@@ -40,7 +40,6 @@ export class UsersRepository {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    console.log('user', user);
     const userWithoutPassword = excludeFieldFromObject(user, ['password']);
     return userWithoutPassword;
   }

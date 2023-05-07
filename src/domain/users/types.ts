@@ -1,3 +1,9 @@
 const userRolesTypes = ['admin', 'coach', 'player'];
 
-export { userRolesTypes };
+enum UserRoles {
+  ADMIN = 'admin',
+  COACH = 'coach',
+  PLAYER = 'player',
+}
+
+export { userRolesTypes, UserRoles };
