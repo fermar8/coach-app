@@ -86,14 +86,18 @@ describe('UsersController (e2e)', () => {
     });
     it('ERROR - should return an error if repeated email', async () => {
       createUserDto.role = 'player';
-      createUserDto.email = 'player@example.com';
+      createUserDto.email = 'aRepeatedPlayer@example.com';
       createUserDto.phone = '5234567890';
+      await request(app.getHttpServer()).post('/users').send(createUserDto);
+
       const response = await request(app.getHttpServer())
         .post('/users')
         .send(createUserDto)
         .expect(HttpStatus.INTERNAL_SERVER_ERROR);
 
-      expect(response.body.message).toBe('Unique constraint violation');
+      expect(response.body.message).toBe(
+        'A user with this email or phone already exists',
+      );
     });
     it('ERROR - should return an error if invalid role', async () => {
       createUserDto.role = 'invalidRole';

@@ -33,7 +33,9 @@ export class UsersRepository {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          throw new InternalServerErrorException('Unique constraint violation');
+          throw new InternalServerErrorException(
+            'A user with this email or phone already exists',
+          );
         }
       }
       throw new InternalServerErrorException('Could not create user');
