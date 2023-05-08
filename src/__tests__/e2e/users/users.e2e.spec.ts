@@ -3,6 +3,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../../app.module';
 import { createUserDto } from '../../__fixtures__/users';
+import UsersModuleErrorMessages from '../../../errorHandling/users/errorMessages';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
@@ -96,7 +97,7 @@ describe('UsersController (e2e)', () => {
         .expect(HttpStatus.INTERNAL_SERVER_ERROR);
 
       expect(response.body.message).toBe(
-        'A user with this email or phone already exists',
+        UsersModuleErrorMessages.USER_ALREADY_EXISTS,
       );
     });
     it('ERROR - should return an error if invalid role', async () => {

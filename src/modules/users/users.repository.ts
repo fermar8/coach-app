@@ -8,6 +8,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UserEntity } from '../../domain/users/entities';
 import { CreateUserDto } from '../../domain/users/dto';
 import { excludeFieldFromObject } from '../../utils/generalUtils';
+import UsersModuleErrorMessages from '../../errorHandling/users/errorMessages';
+import PrismaErrorCodes from '../../errorHandling/prisma/errorCodes';
 
 @Injectable()
 export class UsersRepository {
@@ -32,13 +34,15 @@ export class UsersRepository {
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
+        if (error.code === PrismaErrorCodes.UNIQUE_CONSTRAINT_VIOLATION) {
           throw new InternalServerErrorException(
-            'A user with this email or phone already exists',
+            UsersModuleErrorMessages.USER_ALREADY_EXISTS,
           );
         }
       }
-      throw new InternalServerErrorException('Could not create user');
+      throw new InternalServerErrorException(
+        UsersModuleErrorMessages.USER_CREATE_ERROR,
+      );
     }
   }
 
@@ -55,7 +59,7 @@ export class UsersRepository {
         },
       });
       if (!user) {
-        throw new NotFoundException('User not found');
+        throw new NotFoundException(UsersModuleErrorMessages.USER_NOT_FOUND);
       }
       const userWithoutPassword = excludeFieldFromObject(user, ['password']);
       return userWithoutPassword;
