@@ -1,7 +1,6 @@
-const userRolesTypes = ['admin', 'coach', 'player'];
+const userRolesTypes = ['coach', 'player'];
 
 enum UserRoles {
-  ADMIN = 'admin',
   COACH = 'coach',
   PLAYER = 'player',
 }

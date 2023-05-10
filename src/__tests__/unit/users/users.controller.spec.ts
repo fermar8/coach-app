@@ -1,4 +1,4 @@
-import { Test } from '@nestjs/testing';
+/* import { Test } from '@nestjs/testing';
 import {
   UsersController,
   UsersService,
@@ -34,10 +34,10 @@ describe('UsersController', () => {
     it('should return error 400 when there is missing data in body', async () => {});
     it('should return error 400 when email already exists', async () => {});
     it('should return error 500 when unexpected error', async () => {});
-    */
   });
 
   describe('sendInvitation', () => {
     // it('', async () => {});
   });
 });
+*/

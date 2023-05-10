@@ -1,7 +1,7 @@
 import { createUserDto } from './CreateUserDto';
-import { User } from '@prisma/client';
+import { UserEntity } from '../../../domain/users/entities';
 
-export const createUserResponse: User = {
+export const createUserResponse: UserEntity = {
   id: 1,
   name: createUserDto.name,
   surname: createUserDto.surname,

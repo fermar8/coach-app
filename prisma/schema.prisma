@@ -13,36 +13,57 @@ datasource db {
 // prisma/schema.prisma
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String  
-  surname   String
-  email     String   @unique
-  phone     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  admin     Admin?
-  coach     Coach?
-  player    Player?
+  id              Int               @id @default(autoincrement())
+  name            String
+  surname         String
+  email           String            @unique
+  phone           String            @unique
+  password        String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  admin           Admin?            
+  coach           Coach?
+  player          Player?
+  invitationToken InvitationToken[]
 }
 
 model Admin {
-  id     Int  @id @default(autoincrement())
-  user   User @relation(fields: [userId], references: [id])
-  userId Int  @unique
-  role   String
+  id     Int    @id @default(autoincrement())
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int    @unique
+  role   String 
 }
 
 model Coach {
-  id     Int  @id @default(autoincrement())
-  user   User @relation(fields: [userId], references: [id])
-  userId Int  @unique
+  id     Int    @id @default(autoincrement())
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int    @unique
   role   String
 }
 
 model Player {
-  id     Int  @id @default(autoincrement())
-  user   User @relation(fields: [userId], references: [id])
-  userId Int  @unique
+  id     Int    @id @default(autoincrement())
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int    @unique
   role   String
+}
+
+model InvitationToken {
+  id            Int      @id @default(autoincrement())
+  type          String
+  generatedBy   User     @relation(fields: [generatedById], references: [id])
+  generatedById Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  team          Team     @relation(fields: [teamId], references: [id])
+  teamId        Int
+}
+
+model Team {
+  id        Int      @id @default(autoincrement())
+  name      String
+  type      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  InvitationToken InvitationToken[]
 }

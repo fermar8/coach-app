@@ -1,5 +1,6 @@
 import {
   Injectable,
+  BadRequestException,
   NotFoundException,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -35,7 +36,7 @@ export class UsersRepository {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === PrismaErrorCodes.UNIQUE_CONSTRAINT_VIOLATION) {
-          throw new InternalServerErrorException(
+          throw new BadRequestException(
             UsersModuleErrorMessages.USER_ALREADY_EXISTS,
           );
         }

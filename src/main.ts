@@ -14,9 +14,7 @@ async function bootstrap() {
     new FastifyAdapter({ logger: true }),
   );
 
-  await app.register(fastifyCookie, {
-    secret: process.env.SESSION_KEY,
-  });
+  await app.register(fastifyCookie);
 
   app.register(helmet, {
     contentSecurityPolicy: {
@@ -40,6 +38,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   await app.listen(3000, '0.0.0.0');
+  console.log('Server listening on port 3000');
 }
 
 bootstrap();

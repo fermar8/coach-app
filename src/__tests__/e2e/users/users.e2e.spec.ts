@@ -22,23 +22,7 @@ describe('UsersController (e2e)', () => {
   });
 
   describe('User Creation (e2e)', () => {
-    it('SUCCESS - should create a new user with admin role', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/users')
-        .send(createUserDto)
-        .expect(HttpStatus.CREATED);
-
-      const createdUser = response.body;
-
-      expect(createdUser).toHaveProperty('id');
-      expect(createdUser.name).toBe(createUserDto.name);
-      expect(createdUser.email).toBe(createUserDto.email);
-      expect(createdUser.admin.role).toBe(createUserDto.role);
-    });
     it('SUCCESS - should create a new user with coach role', async () => {
-      createUserDto.role = 'coach';
-      createUserDto.email = 'coach@example.com';
-      createUserDto.phone = '2234567890';
       const response = await request(app.getHttpServer())
         .post('/users')
         .send(createUserDto)
@@ -82,7 +66,7 @@ describe('UsersController (e2e)', () => {
         'email must be an email',
         'phone should not be empty',
         'password should not be empty',
-        'role must be one of the following values: admin, coach, player',
+        'role must be one of the following values: coach, player',
       ]);
     });
     it('ERROR - should return an error if repeated email', async () => {
@@ -94,7 +78,7 @@ describe('UsersController (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/users')
         .send(createUserDto)
-        .expect(HttpStatus.INTERNAL_SERVER_ERROR);
+        .expect(HttpStatus.BAD_REQUEST);
 
       expect(response.body.message).toBe(
         UsersModuleErrorMessages.USER_ALREADY_EXISTS,
@@ -110,7 +94,7 @@ describe('UsersController (e2e)', () => {
         .expect(HttpStatus.BAD_REQUEST);
 
       expect(response.body.message).toStrictEqual([
-        'role must be one of the following values: admin, coach, player',
+        'role must be one of the following values: coach, player',
       ]);
     });
   });
