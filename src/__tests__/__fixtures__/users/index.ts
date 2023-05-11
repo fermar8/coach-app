@@ -1,4 +1,4 @@
-import { createUserDto } from './CreateUserDto';
-import { createUserResponse } from './CreateUserResponse';
+import { mockCreateUserDto } from './mockCreateUserDto';
+import { mockCreateUserResponse } from './mockCreateUserResponse';
 
-export { createUserDto, createUserResponse };
+export { mockCreateUserDto, mockCreateUserResponse };

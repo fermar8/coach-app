@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../../app.module';
-import { createUserDto } from '../../__fixtures__/users';
+import { mockCreateUserDto } from '../../__fixtures__/users';
 import UsersModuleErrorMessages from '../../../errorHandling/users/errorMessages';
 
 describe('UsersController (e2e)', () => {
@@ -25,31 +25,31 @@ describe('UsersController (e2e)', () => {
     it('SUCCESS - should create a new user with coach role', async () => {
       const response = await request(app.getHttpServer())
         .post('/users')
-        .send(createUserDto)
+        .send(mockCreateUserDto)
         .expect(HttpStatus.CREATED);
 
       const createdUser = response.body;
 
       expect(createdUser).toHaveProperty('id');
-      expect(createdUser.name).toBe(createUserDto.name);
-      expect(createdUser.email).toBe(createUserDto.email);
-      expect(createdUser.coach.role).toBe(createUserDto.role);
+      expect(createdUser.name).toBe(mockCreateUserDto.name);
+      expect(createdUser.email).toBe(mockCreateUserDto.email);
+      expect(createdUser.coach.role).toBe(mockCreateUserDto.role);
     });
     it('SUCCESS - should create a new user with player role', async () => {
-      createUserDto.role = 'player';
-      createUserDto.email = 'player@example.com';
-      createUserDto.phone = '3234567890';
+      mockCreateUserDto.role = 'player';
+      mockCreateUserDto.email = 'player@example.com';
+      mockCreateUserDto.phone = '3234567890';
       const response = await request(app.getHttpServer())
         .post('/users')
-        .send(createUserDto)
+        .send(mockCreateUserDto)
         .expect(HttpStatus.CREATED);
 
       const createdUser = response.body;
 
       expect(createdUser).toHaveProperty('id');
-      expect(createdUser.name).toBe(createUserDto.name);
-      expect(createdUser.email).toBe(createUserDto.email);
-      expect(createdUser.player.role).toBe(createUserDto.role);
+      expect(createdUser.name).toBe(mockCreateUserDto.name);
+      expect(createdUser.email).toBe(mockCreateUserDto.email);
+      expect(createdUser.player.role).toBe(mockCreateUserDto.role);
     });
     it('ERROR - should return an error if invalid body', async () => {
       const invalidBody = {
@@ -70,14 +70,14 @@ describe('UsersController (e2e)', () => {
       ]);
     });
     it('ERROR - should return an error if repeated email', async () => {
-      createUserDto.role = 'player';
-      createUserDto.email = 'aRepeatedPlayer@example.com';
-      createUserDto.phone = '5234567890';
-      await request(app.getHttpServer()).post('/users').send(createUserDto);
+      mockCreateUserDto.role = 'player';
+      mockCreateUserDto.email = 'aRepeatedPlayer@example.com';
+      mockCreateUserDto.phone = '5234567890';
+      await request(app.getHttpServer()).post('/users').send(mockCreateUserDto);
 
       const response = await request(app.getHttpServer())
         .post('/users')
-        .send(createUserDto)
+        .send(mockCreateUserDto)
         .expect(HttpStatus.BAD_REQUEST);
 
       expect(response.body.message).toBe(
@@ -85,12 +85,12 @@ describe('UsersController (e2e)', () => {
       );
     });
     it('ERROR - should return an error if invalid role', async () => {
-      createUserDto.role = 'invalidRole';
-      createUserDto.email = 'invalidRole@example.com';
-      createUserDto.phone = '4234567890';
+      mockCreateUserDto.role = 'invalidRole';
+      mockCreateUserDto.email = 'invalidRole@example.com';
+      mockCreateUserDto.phone = '4234567890';
       const response = await request(app.getHttpServer())
         .post('/users')
-        .send(createUserDto)
+        .send(mockCreateUserDto)
         .expect(HttpStatus.BAD_REQUEST);
 
       expect(response.body.message).toStrictEqual([

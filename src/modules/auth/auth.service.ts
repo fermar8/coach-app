@@ -8,7 +8,7 @@ export class AuthService {
   constructor(private readonly jwtService: JwtService) {}
 
   async createJwtToken(user: UserEntity): Promise<any> {
-    const payload = { username: user.name, sub: user.id };
+    const payload = { name: user.name, sub: user.id };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: process.env.SESSION_KEY,
       expiresIn: '7d',

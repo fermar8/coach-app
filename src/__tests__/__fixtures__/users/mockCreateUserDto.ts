@@ -1,6 +1,6 @@
 import { CreateUserDto } from '../../../domain/users/dto';
 
-export const createUserDto: CreateUserDto = {
+export const mockCreateUserDto: CreateUserDto = {
   name: 'John',
   surname: 'Doe',
   email: 'coach@example.com',
