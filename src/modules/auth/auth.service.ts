@@ -7,7 +7,7 @@ import { UserEntity } from 'src/domain/users/entities';
 export class AuthService {
   constructor(private readonly jwtService: JwtService) {}
 
-  async createJwtToken(user: UserEntity): Promise<any> {
+  async createJwtToken(user: UserEntity): Promise<string> {
     const payload = { name: user.name, sub: user.id };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: process.env.SESSION_KEY,
@@ -18,5 +18,12 @@ export class AuthService {
 
   async hashPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);
+  }
+
+  async validateUserPassword(
+    userPassword: string,
+    hashedUserPassword: string,
+  ): Promise<boolean> {
+    return await bcrypt.compare(userPassword, hashedUserPassword);
   }
 }

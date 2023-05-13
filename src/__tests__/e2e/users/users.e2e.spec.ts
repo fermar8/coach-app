@@ -21,10 +21,10 @@ describe('UsersController (e2e)', () => {
     await app.close();
   });
 
-  describe('User Creation (e2e)', () => {
+  describe('POST /users/register (e2e)', () => {
     it('SUCCESS - should create a new user with coach role', async () => {
       const response = await request(app.getHttpServer())
-        .post('/users')
+        .post('/users/register')
         .send(mockCreateUserDto)
         .expect(HttpStatus.CREATED);
 
@@ -40,7 +40,7 @@ describe('UsersController (e2e)', () => {
       mockCreateUserDto.email = 'player@example.com';
       mockCreateUserDto.phone = '3234567890';
       const response = await request(app.getHttpServer())
-        .post('/users')
+        .post('/users/register')
         .send(mockCreateUserDto)
         .expect(HttpStatus.CREATED);
 
@@ -56,7 +56,7 @@ describe('UsersController (e2e)', () => {
         invalidKey: 'invalidValue',
       };
       const response = await request(app.getHttpServer())
-        .post('/users')
+        .post('/users/register')
         .send(invalidBody)
         .expect(HttpStatus.BAD_REQUEST);
 
@@ -73,10 +73,12 @@ describe('UsersController (e2e)', () => {
       mockCreateUserDto.role = 'player';
       mockCreateUserDto.email = 'aRepeatedPlayer@example.com';
       mockCreateUserDto.phone = '5234567890';
-      await request(app.getHttpServer()).post('/users').send(mockCreateUserDto);
+      await request(app.getHttpServer())
+        .post('/users/register')
+        .send(mockCreateUserDto);
 
       const response = await request(app.getHttpServer())
-        .post('/users')
+        .post('/users/register')
         .send(mockCreateUserDto)
         .expect(HttpStatus.BAD_REQUEST);
 
@@ -89,7 +91,7 @@ describe('UsersController (e2e)', () => {
       mockCreateUserDto.email = 'invalidRole@example.com';
       mockCreateUserDto.phone = '4234567890';
       const response = await request(app.getHttpServer())
-        .post('/users')
+        .post('/users/register')
         .send(mockCreateUserDto)
         .expect(HttpStatus.BAD_REQUEST);
 

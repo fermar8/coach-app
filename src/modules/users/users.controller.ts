@@ -6,6 +6,7 @@ import {
   UsePipes,
   ValidationPipe,
   Res,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -16,11 +17,10 @@ import {
 import { UsersService } from './users.service';
 import { UserEntity } from '../../domain/users/entities';
 import { FastifyReply } from 'fastify';
-import { CreateUserDto } from '../../domain/users/dto';
+import { CreateUserDto, UserDto } from '../../domain/users/dto';
 import { AuthService } from '../auth/auth.service';
 import UsersModuleErrorMessages from '../../errorHandling/users/errorMessages';
 
-@ApiBearerAuth()
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
@@ -29,17 +29,17 @@ export class UsersController {
     private readonly authService: AuthService,
   ) {}
 
-  @Post()
-  @HttpCode(201)
+  @Post('/register')
+  @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe({ transform: true }))
   @ApiOperation({ summary: 'Create user' })
-  @ApiResponse({ status: 201, description: 'User Created.' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'User Created.' })
   @ApiResponse({
-    status: 400,
+    status: HttpStatus.BAD_REQUEST,
     description: UsersModuleErrorMessages.USER_ALREADY_EXISTS,
   })
   @ApiResponse({
-    status: 500,
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: UsersModuleErrorMessages.USER_CREATE_ERROR,
   })
   async createUser(
@@ -47,6 +47,29 @@ export class UsersController {
     @Body() body: CreateUserDto,
   ): Promise<UserEntity> {
     const user = await this.usersService.createUser(body);
+    const cookie = await this.authService.createJwtToken(user);
+    response.header('Set-Cookie', cookie);
+    return user;
+  }
+
+  @Post('/login')
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @ApiOperation({ summary: 'Login user' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'User Logged In.' })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: UsersModuleErrorMessages.USER_INVALID_CREDENTIALS,
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: UsersModuleErrorMessages.USER_REPOSITORY_ERROR,
+  })
+  async loginUser(
+    @Res({ passthrough: true }) response: FastifyReply,
+    @Body() body: UserDto,
+  ): Promise<UserEntity> {
+    const user = await this.usersService.loginUser(body);
     const cookie = await this.authService.createJwtToken(user);
     response.header('Set-Cookie', cookie);
     return user;

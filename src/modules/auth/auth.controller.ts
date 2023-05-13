@@ -6,16 +6,22 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
+  @Post('/invite')
   @HttpCode(201)
   @UsePipes(new ValidationPipe({ transform: true }))
-  async createUser(@Body() body: any): Promise<any> {
+  async createInvite(@Body() body: any): Promise<any> {
     // return await this.authService.createUser(body);
   }
 }

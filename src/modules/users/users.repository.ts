@@ -8,7 +8,6 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserEntity } from '../../domain/users/entities';
 import { CreateUserDto } from '../../domain/users/dto';
-import { excludeFieldFromObject } from '../../utils/generalUtils';
 import UsersModuleErrorMessages from '../../errorHandling/users/errorMessages';
 import PrismaErrorCodes from '../../errorHandling/prisma/errorCodes';
 
@@ -62,10 +61,34 @@ export class UsersRepository {
       if (!user) {
         throw new NotFoundException(UsersModuleErrorMessages.USER_NOT_FOUND);
       }
-      const userWithoutPassword = excludeFieldFromObject(user, ['password']);
-      return userWithoutPassword;
+      return user;
     } catch (error) {
-      throw new InternalServerErrorException('error');
+      throw new InternalServerErrorException(
+        UsersModuleErrorMessages.USER_REPOSITORY_ERROR,
+      );
+    }
+  }
+
+  async getUserByEmail(email: string): Promise<UserEntity> {
+    try {
+      const user = await this.prismaService.user.findUnique({
+        where: {
+          email,
+        },
+        include: {
+          admin: true,
+          coach: true,
+          player: true,
+        },
+      });
+      if (!user) {
+        throw new NotFoundException(UsersModuleErrorMessages.USER_NOT_FOUND);
+      }
+      return user;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        UsersModuleErrorMessages.USER_REPOSITORY_ERROR,
+      );
     }
   }
 }
