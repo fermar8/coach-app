@@ -17,7 +17,9 @@ export class UsersService {
     private readonly authService: AuthService,
   ) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<UserEntity> {
+  async createUser(
+    createUserDto: CreateUserDto,
+  ): Promise<Omit<UserEntity, 'password'>> {
     createUserDto.password = await this.authService.hashPassword(
       createUserDto.password,
     );
@@ -27,7 +29,7 @@ export class UsersService {
     return userWithoutPassword;
   }
 
-  async loginUser(userDto: UserDto): Promise<UserEntity> {
+  async loginUser(userDto: UserDto): Promise<Omit<UserEntity, 'password'>> {
     try {
       const user = await this.usersRepository.getUserByEmail(userDto.email);
       const isPasswordValid = await this.authService.validateUserPassword(

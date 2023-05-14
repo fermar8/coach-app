@@ -63,15 +63,15 @@ describe('UsersController (e2e)', () => {
       expect(response.body.message).toStrictEqual([
         'name should not be empty',
         'surname should not be empty',
-        'email must be an email',
         'phone should not be empty',
-        'password should not be empty',
         'role must be one of the following values: coach, player',
+        'email must be an email',
+        'password should not be empty',
       ]);
     });
     it('ERROR - should return an error if repeated email', async () => {
       mockCreateUserDto.role = 'player';
-      mockCreateUserDto.email = 'aRepeatedPlayer@example.com';
+      mockCreateUserDto.email = 'player@example.com';
       mockCreateUserDto.phone = '5234567890';
       await request(app.getHttpServer())
         .post('/users/register')

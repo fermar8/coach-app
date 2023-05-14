@@ -8,6 +8,7 @@ import {
 import { PrismaService } from '../../../modules/prisma/prisma.service';
 import { AuthService } from '../../../modules/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
+import { excludeFieldFromObject } from '../../../utils/generalUtils';
 
 import {
   mockCreateUserDto,
@@ -62,7 +63,12 @@ describe('UsersService', () => {
       expect(usersRepository.getUserById).toHaveBeenCalledWith(
         mockCreateUserResponse.id,
       );
-      expect(result).toEqual(mockCreateUserResponse);
+      const mockResponseWithoutPassword = excludeFieldFromObject(
+        mockCreateUserResponse,
+        ['password'],
+      );
+
+      expect(result).toEqual(mockResponseWithoutPassword);
     });
   });
 });

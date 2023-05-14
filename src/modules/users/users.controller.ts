@@ -1,25 +1,20 @@
+import { AuthService } from '../auth/auth.service';
+import { UsersService } from './users.service';
+import { CreateUserDto, UserDto } from '../../domain/users/dto';
+import { UserEntity } from '../../domain/users/entities';
+import UsersModuleErrorMessages from '../../errorHandling/users/errorMessages';
+import { FastifyReply } from 'fastify';
 import {
   Controller,
   Post,
   Body,
+  Res,
   HttpCode,
+  HttpStatus,
   UsePipes,
   ValidationPipe,
-  Res,
-  HttpStatus,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
-import { UsersService } from './users.service';
-import { UserEntity } from '../../domain/users/entities';
-import { FastifyReply } from 'fastify';
-import { CreateUserDto, UserDto } from '../../domain/users/dto';
-import { AuthService } from '../auth/auth.service';
-import UsersModuleErrorMessages from '../../errorHandling/users/errorMessages';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('users')
 @Controller('users')
@@ -45,7 +40,7 @@ export class UsersController {
   async createUser(
     @Res({ passthrough: true }) response: FastifyReply,
     @Body() body: CreateUserDto,
-  ): Promise<UserEntity> {
+  ): Promise<Omit<UserEntity, 'password'>> {
     const user = await this.usersService.createUser(body);
     const cookie = await this.authService.createJwtToken(user);
     response.header('Set-Cookie', cookie);
@@ -68,7 +63,7 @@ export class UsersController {
   async loginUser(
     @Res({ passthrough: true }) response: FastifyReply,
     @Body() body: UserDto,
-  ): Promise<UserEntity> {
+  ): Promise<Omit<UserEntity, 'password'>> {
     const user = await this.usersService.loginUser(body);
     const cookie = await this.authService.createJwtToken(user);
     response.header('Set-Cookie', cookie);

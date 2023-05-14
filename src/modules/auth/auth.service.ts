@@ -7,7 +7,7 @@ import { UserEntity } from 'src/domain/users/entities';
 export class AuthService {
   constructor(private readonly jwtService: JwtService) {}
 
-  async createJwtToken(user: UserEntity): Promise<string> {
+  async createJwtToken(user: Omit<UserEntity, 'password'>): Promise<string> {
     const payload = { name: user.name, sub: user.id };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: process.env.SESSION_KEY,
