@@ -1,0 +1,5 @@
+{
+ 
+    "confirmationEmailMessage": "Registration successful, check your email to confirm it.",
+    "userAlreadyExists": "User with this email or phone already exists in the database"
+}

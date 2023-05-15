@@ -3,29 +3,41 @@ import { ApiProperty } from '@nestjs/swagger';
 import { userRolesTypes } from './types';
 
 class UserDto {
-  @ApiProperty()
+  @ApiProperty({
+    example: 'anEmail@gmail.com',
+  })
   @IsEmail()
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'aPassword@123',
+  })
   @IsNotEmpty()
   password: string;
 }
 
 class CreateUserDto extends UserDto {
-  @ApiProperty()
+  @ApiProperty({
+    example: 'John',
+  })
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'Doe',
+  })
   @IsNotEmpty()
   surname: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: '555555555',
+  })
   @IsNotEmpty()
   phone: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'coach',
+  })
   @IsIn(userRolesTypes)
   role: string;
 }

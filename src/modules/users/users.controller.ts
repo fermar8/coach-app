@@ -14,7 +14,18 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { IMessage } from 'src/domain/common/interfaces';
+import { I18n, I18nContext } from 'nestjs-i18n';
 
 @ApiTags('users')
 @Controller('users')
@@ -28,35 +39,37 @@ export class UsersController {
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe({ transform: true }))
   @ApiOperation({ summary: 'Create user' })
-  @ApiResponse({ status: HttpStatus.CREATED, description: 'User Created.' })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
+  @ApiCreatedResponse({
+    status: HttpStatus.CREATED,
+    description: 'User Created.',
+  })
+  @ApiConflictResponse({
+    status: HttpStatus.CONFLICT,
     description: UsersModuleErrorMessages.USER_ALREADY_EXISTS,
   })
-  @ApiResponse({
+  @ApiInternalServerErrorResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: UsersModuleErrorMessages.USER_CREATE_ERROR,
   })
   async createUser(
-    @Res({ passthrough: true }) response: FastifyReply,
-    @Body() body: CreateUserDto,
-  ): Promise<Omit<UserEntity, 'password'>> {
-    const user = await this.usersService.createUser(body);
-    const cookie = await this.authService.createJwtToken(user);
-    response.header('Set-Cookie', cookie);
-    return user;
+    @I18n() i18n: I18nContext,
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<IMessage> {
+    return await this.usersService.createUser(i18n, createUserDto);
   }
+
+  /*
 
   @Post('/login')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe({ transform: true }))
   @ApiOperation({ summary: 'Login user' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'User Logged In.' })
-  @ApiResponse({
+  @ApiOkResponse({ status: HttpStatus.OK, description: 'User Logged In.' })
+  @ApiUnauthorizedResponse({
     status: HttpStatus.UNAUTHORIZED,
     description: UsersModuleErrorMessages.USER_INVALID_CREDENTIALS,
   })
-  @ApiResponse({
+  @ApiInternalServerErrorResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: UsersModuleErrorMessages.USER_REPOSITORY_ERROR,
   })
@@ -69,4 +82,5 @@ export class UsersController {
     response.header('Set-Cookie', cookie);
     return user;
   }
+  */
 }

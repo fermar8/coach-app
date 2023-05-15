@@ -25,6 +25,7 @@ import {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  /*
   @Post('/invite')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe({ transform: true }))
@@ -49,4 +50,5 @@ export class AuthController {
     response.header('Set-Cookie', cookie);
     return user;
   }
+  */
 }
