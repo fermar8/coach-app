@@ -1,5 +1,7 @@
 {
  
-    "confirmationEmailMessage": "Registro exitoso, por favor comprueba tu correo para confirmarlo.",
-    "userAlreadyExists": "Un usuario con ese correo o teléfono ya existe en la base de datos."
+        "already_exists": "Un usuario con ese correo o teléfono ya existe en la base de datos",
+        "create_error": "El usuario no pudo ser creado",
+        "not_found": "El usuario no pudo ser encontrado",
+        "invalid_credentials": "Credenciales de usuario incorrectas"
 }

@@ -1,0 +1,10 @@
+{
+    "confirmation_message": "Registro exitoso, confirmalo en tu correo",
+    "confirmation_email_subject": "Confirma tu registro en Coach App",
+    "confirmation_welcome_text": "Bienvenido a",
+    "confirmation_click_text": "Pulsa",
+    "confirmation_here_text": "aquí",
+    "confirmation_activate_account_text": "para activar tu cuenta, o ve a este enlace:",
+    "confirmation_link_expiration_text": "Este enlace caducará en una hora.",
+    "confirmation_luck_text": "Mucha suerte" 
+}

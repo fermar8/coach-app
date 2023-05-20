@@ -39,20 +39,20 @@ export class UsersService {
         user,
         TokenTypeEnum.CONFIRMATION,
       );
-      this.mailerService.sendConfirmationEmail(user, confirmationToken);
+      this.mailerService.sendConfirmationEmail(user, confirmationToken, i18n);
       const confirmationEmailMessage: string = i18n.t(
-        'users.confirmationEmailMessage',
+        'email.confirmation_message',
       );
       return this.commonService.generateMessage(confirmationEmailMessage);
     } catch (err) {
       if (err instanceof BadRequestException) {
         throw new BadRequestException(
-          i18n.t('users.userAlreadyExists'),
+          i18n.t('users.already_exists'),
           err.message,
         );
       } else {
         throw new InternalServerErrorException(
-          i18n.t('users.userUnexpectedError'),
+          i18n.t('common.unexpected_error'),
           err.message,
         );
       }

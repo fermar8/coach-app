@@ -5,6 +5,7 @@ import * as sgMail from '@sendgrid/mail';
 import { join } from 'path';
 import { ITemplates, ITemplatedData } from '../../domain/mailer/interfaces';
 import { UserEntity } from '../../domain/users/entities';
+import { I18nContext } from 'nestjs-i18n';
 
 @Injectable()
 export class MailerService {
@@ -45,12 +46,19 @@ export class MailerService {
   public async sendConfirmationEmail(
     user: UserEntity,
     token: string,
+    i18n: I18nContext,
   ): Promise<void> {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
     const { email, name } = user;
-    const subject = 'Confirm your email';
+    const subject = i18n.t('email.confirmation_email_subject');
     const html = this.templates.confirmation({
       name,
+      welcomeText: i18n.t('email.confirmation_welcome_text'),
+      clickText: i18n.t('email.confirmation_click_text'),
+      hereText: i18n.t('email.confirmation_here_text'),
+      activateAccountText: i18n.t('email.confirmation_activate_account_text'),
+      linkExpirationText: i18n.t('email.confirmation_link_expiration_text'),
+      luckText: i18n.t('email.confirmation_luck_text'),
       link: `https://${process.env.DOMAIN}/auth/confirm/${token}`,
     });
     const emailToSend = await MailerService.buildEmail(email, subject, html);
