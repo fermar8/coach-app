@@ -3,6 +3,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from '../../domain/users/entities';
 import { TokenTypeEnum } from '../../domain/auth/types';
+import { FastifyReply } from 'fastify';
 
 @Injectable()
 export class AuthService {
@@ -16,35 +17,81 @@ export class AuthService {
 
     switch (tokenType) {
       case TokenTypeEnum.ACCESS:
-        const accessTokenSecret = process.env.COOKIE_SECRET;
-        const accessTokenExpiration = process.env.JWT_ACCESS_TIME;
         return await this.jwtService.signAsync(payload, {
-          secret: accessTokenSecret,
-          expiresIn: accessTokenExpiration,
+          secret: process.env.COOKIE_SECRET,
+          expiresIn: process.env.JWT_ACCESS_TIME,
         });
       case TokenTypeEnum.REFRESH:
-        const refreshTokenSecret = process.env.JWT_REFRESH_SECRET;
-        const refreshTokenExpiration = process.env.JWT_REFRESH_TIME;
         return await this.jwtService.signAsync(payload, {
-          secret: refreshTokenSecret,
-          expiresIn: refreshTokenExpiration,
+          secret: process.env.JWT_REFRESH_SECRET,
+          expiresIn: process.env.JWT_REFRESH_TIME,
         });
       case TokenTypeEnum.CONFIRMATION:
-        const confirmationTokenSecret = process.env.JWT_CONFIRMATION_SECRET;
-        const confirmationTokenExpiration = process.env.JWT_CONFIRMATION_TIME;
         return await this.jwtService.signAsync(payload, {
-          secret: confirmationTokenSecret,
-          expiresIn: confirmationTokenExpiration,
+          secret: process.env.JWT_CONFIRMATION_SECRET,
+          expiresIn: process.env.JWT_CONFIRMATION_TIME,
         });
       case TokenTypeEnum.RESET_PASSWORD:
-        const resetPasswordTokenSecret = process.env.JWT_RESET_PASSWORD_SECRET;
-        const resetPasswordTokenExpiration =
-          process.env.JWT_RESET_PASSWORD_TIME;
         return await this.jwtService.signAsync(payload, {
-          secret: resetPasswordTokenSecret,
-          expiresIn: resetPasswordTokenExpiration,
+          secret: process.env.JWT_RESET_PASSWORD_SECRET,
+          expiresIn: process.env.JWT_RESET_PASSWORD_TIME,
         });
     }
+  }
+
+  public async verifyToken(
+    token: string,
+    tokenType: TokenTypeEnum,
+  ): Promise<{ id: number }> {
+    switch (tokenType) {
+      case TokenTypeEnum.ACCESS:
+        const accessTokenPayload = await this.jwtService.verifyAsync(token, {
+          secret: process.env.COOKIE_SECRET,
+          maxAge: process.env.JWT_ACCESS_TIME,
+        });
+        return accessTokenPayload.id;
+      case TokenTypeEnum.REFRESH:
+        const refreshTokenPayload = await this.jwtService.verifyAsync(token, {
+          secret: process.env.JWT_REFRESH_SECRET,
+          maxAge: process.env.JWT_REFRESH_TIME,
+        });
+        return refreshTokenPayload.id;
+      case TokenTypeEnum.CONFIRMATION:
+        const confirmTokenPayload = await this.jwtService.verifyAsync(token, {
+          secret: process.env.JWT_CONFIRMATION_SECRET,
+          maxAge: process.env.JWT_CONFIRMATION_TIME,
+        });
+        return confirmTokenPayload.id;
+      case TokenTypeEnum.RESET_PASSWORD:
+        const resetTokenPayload = await this.jwtService.verifyAsync(token, {
+          secret: process.env.JWT_RESET_PASSWORD_SECRET,
+          maxAge: process.env.JWT_RESET_PASSWORD_TIME,
+        });
+        return resetTokenPayload.id;
+    }
+  }
+
+  public async generateAuthTokens(user: UserEntity): Promise<[string, string]> {
+    return Promise.all([
+      this.createJwtToken(user, TokenTypeEnum.ACCESS),
+      this.createJwtToken(user, TokenTypeEnum.REFRESH),
+    ]);
+  }
+
+  public saveRefreshCookie(
+    res: FastifyReply,
+    refreshToken: string,
+  ): FastifyReply {
+    const refreshTime = process.env.JWT_REFRESH_TIME as unknown as number;
+    return res
+      .cookie('rf', refreshToken, {
+        secure: true,
+        httpOnly: true,
+        signed: true,
+        path: '/users',
+        expires: new Date(Date.now() + refreshTime * 1000),
+      })
+      .header('Content-Type', 'application/json');
   }
 
   public async hashPassword(password: string): Promise<string> {

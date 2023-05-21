@@ -6,5 +6,7 @@
     "confirmation_here_text": "aquí",
     "confirmation_activate_account_text": "para activar tu cuenta, o ve a este enlace:",
     "confirmation_link_expiration_text": "Este enlace caducará en una hora.",
-    "confirmation_luck_text": "Mucha suerte" 
+    "confirmation_luck_text": "Mucha suerte",
+
+    "error_already_confirmed": "Este correo ya ha sido confirmado"
 }

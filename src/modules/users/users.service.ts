@@ -14,6 +14,8 @@ import { UserEntity } from '../../domain/users/entities';
 import { CreateUserDto, UserDto } from '../../domain/users/dto';
 import { IMessage } from '../../domain/common/interfaces';
 import { TokenTypeEnum } from '../../domain/auth/types';
+import { ConfirmEmailDto } from '../../domain/auth/dto';
+import { IAuthResult } from '../../domain/auth/interfaces';
 
 @Injectable()
 export class UsersService {
@@ -47,12 +49,12 @@ export class UsersService {
     } catch (err) {
       if (err instanceof BadRequestException) {
         throw new BadRequestException(
-          i18n.t('users.already_exists'),
+          i18n.t('users.error_already_exists'),
           err.message,
         );
       } else {
         throw new InternalServerErrorException(
-          i18n.t('common.unexpected_error'),
+          i18n.t('common.error_unexpected_error'),
           err.message,
         );
       }
@@ -86,5 +88,24 @@ export class UsersService {
         throw err;
       }
     }
+  }
+
+  public async confirmEmail(
+    i18n: I18nContext,
+    confirmEmailDto: ConfirmEmailDto,
+  ): Promise<IAuthResult> {
+    const { id } = await this.authService.verifyToken(
+      confirmEmailDto.confirmationToken,
+      TokenTypeEnum.CONFIRMATION,
+    );
+    const user = await this.usersRepository.getUserById(id);
+    if (user.isConfirmed) {
+      throw new BadRequestException(i18n.t('email.error_already_confirmed'));
+    }
+    user.isConfirmed = true;
+    const updatedUser = await this.usersRepository.updateUserById(id, user);
+    const [accessToken, refreshToken] =
+      await this.authService.generateAuthTokens(user);
+    return { user: updatedUser, accessToken, refreshToken };
   }
 }

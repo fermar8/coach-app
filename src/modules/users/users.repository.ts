@@ -4,7 +4,7 @@ import {
   NotFoundException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserEntity } from '../../domain/users/entities';
 import { CreateUserDto } from '../../domain/users/dto';
@@ -81,5 +81,25 @@ export class UsersRepository {
     } catch (error) {
       throw new InternalServerErrorException();
     }
+  }
+
+  public async updateUserById(
+    id: number,
+    user: UserEntity,
+  ): Promise<UserEntity> {
+    const updatedUser = await this.prismaService.user.update({
+      where: {
+        id,
+      },
+      data: {
+        name: user.name,
+        surname: user.surname,
+        email: user.email,
+        phone: user.phone,
+        isConfirmed: user.isConfirmed,
+      },
+    });
+
+    return updatedUser;
   }
 }

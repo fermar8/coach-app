@@ -9,6 +9,7 @@ class UserEntity implements UserPrisma {
   email: string;
   phone: string;
   password: string;
+  isConfirmed: boolean;
 
   admin?: UserEntityExtension | null;
   coach?: UserEntityExtension | null;

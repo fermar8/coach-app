@@ -24,7 +24,8 @@ model User {
   admin           Admin?            
   coach           Coach?
   player          Player?
-  invitationToken InvitationToken[]
+  invitationTokens InvitationToken[]
+  isConfirmed     Boolean          @default(false)
 }
 
 model Admin {

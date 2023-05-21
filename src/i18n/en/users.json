@@ -1,6 +1,6 @@
 {
-    "already_exists": "User with this email or phone already exists in the database",
-    "create_error": "User could not be created",
-    "not_found": "User not found",
-    "invalid_credentials": "User credentials are incorrect"
+    "error_already_exists": "User with this email or phone already exists in the database",
+    "error_create_error": "User could not be created",
+    "error_not_found": "User not found",
+    "error_invalid_credentials": "User credentials are incorrect"
 }

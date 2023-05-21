@@ -1,8 +1,12 @@
 import { AuthService } from '../auth/auth.service';
 import { UsersService } from './users.service';
+import { CommonService } from '../common/common.service';
 import { CreateUserDto, UserDto } from '../../domain/users/dto';
+import { ConfirmEmailDto } from '../../domain/auth/dto';
 import { UserEntity } from '../../domain/users/entities';
+import { IAuthResult } from '../../domain/auth/interfaces';
 import UsersModuleErrorMessages from '../../errorHandling/users/errorMessages';
+import CommonModuleErrorMessages from '../../errorHandling/common/errorMessages';
 import { FastifyReply } from 'fastify';
 import {
   Controller,
@@ -33,6 +37,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
+    private readonly commonService: CommonService,
   ) {}
 
   @Post('/register')
@@ -56,6 +61,35 @@ export class UsersController {
     @Body() createUserDto: CreateUserDto,
   ): Promise<IMessage> {
     return await this.usersService.createUser(i18n, createUserDto);
+  }
+
+  @Post('/confirm-email')
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'Confirms the user email and returns the access token',
+  })
+  @ApiUnauthorizedResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: UsersModuleErrorMessages.USER_INVALID_TOKEN,
+  })
+  @ApiBadRequestResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: CommonModuleErrorMessages.COMMON_UNEXPECTED_ERROR,
+  })
+  async confirmEmail(
+    @I18n() i18n: I18nContext,
+    @Body() confirmEmailDto: ConfirmEmailDto,
+    @Res() res: FastifyReply,
+  ): Promise<Omit<IAuthResult, 'refreshToken'>> {
+    const result = await this.usersService.confirmEmail(i18n, confirmEmailDto);
+    await this.authService.saveRefreshCookie(res, result.refreshToken);
+    const resultWithoutRefreshToken = this.commonService.excludeFieldFromObject(
+      result,
+      ['refreshToken'],
+    );
+    return resultWithoutRefreshToken;
   }
 
   /*

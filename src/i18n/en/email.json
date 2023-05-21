@@ -6,5 +6,7 @@
     "confirmation_here_text": "here",
     "confirmation_activate_account_text": "to activate your acount or go to this link:",
     "confirmation_link_expiration_text": "This link will expire in an hour.",
-    "confirmation_luck_text": "Best of luck"
+    "confirmation_luck_text": "Best of luck",
+
+    "error_already_confirmed": "This email has already been confirmed"
 }
