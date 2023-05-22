@@ -8,5 +8,6 @@
     "confirmation_link_expiration_text": "This link will expire in an hour.",
     "confirmation_luck_text": "Best of luck",
 
-    "error_already_confirmed": "This email has already been confirmed"
+    "error_already_confirmed": "This email has already been confirmed",
+    "error_while_confirming_email": "Error ocurred while confirming email, please try again"
 }

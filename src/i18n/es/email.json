@@ -8,5 +8,6 @@
     "confirmation_link_expiration_text": "Este enlace caducará en una hora.",
     "confirmation_luck_text": "Mucha suerte",
 
-    "error_already_confirmed": "Este correo ya ha sido confirmado"
+    "error_already_confirmed": "Este correo ya ha sido confirmado",
+    "error_while_confirming_email": "Ha ocurrido un error al confirmar el correo, por favor vuelve a intentarlo"
 }

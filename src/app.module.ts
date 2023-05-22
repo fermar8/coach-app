@@ -14,7 +14,7 @@ import {
   UsersService,
   UsersRepository,
 } from './modules/users';
-import { AuthModule, AuthController, AuthService } from './modules/auth';
+import { AuthModule, AuthService } from './modules/auth';
 import { MailerModule, MailerService } from './modules/mailer';
 import { CommonModule, CommonService } from './modules/common';
 
@@ -42,7 +42,7 @@ import { CommonModule, CommonService } from './modules/common';
     MailerModule,
     CommonModule,
   ],
-  controllers: [UsersController, AuthController],
+  controllers: [UsersController],
   providers: [
     UsersService,
     UsersRepository,

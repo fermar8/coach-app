@@ -13,7 +13,7 @@ export class AuthService {
     user: Omit<UserEntity, 'password'>,
     tokenType: TokenTypeEnum,
   ): Promise<string> {
-    const payload = { name: user.name, sub: user.id };
+    const payload = { name: user.name, id: user.id };
 
     switch (tokenType) {
       case TokenTypeEnum.ACCESS:
@@ -29,7 +29,7 @@ export class AuthService {
       case TokenTypeEnum.CONFIRMATION:
         return await this.jwtService.signAsync(payload, {
           secret: process.env.JWT_CONFIRMATION_SECRET,
-          expiresIn: process.env.JWT_CONFIRMATION_TIME,
+          expiresIn: '1d',
         });
       case TokenTypeEnum.RESET_PASSWORD:
         return await this.jwtService.signAsync(payload, {
@@ -42,7 +42,7 @@ export class AuthService {
   public async verifyToken(
     token: string,
     tokenType: TokenTypeEnum,
-  ): Promise<{ id: number }> {
+  ): Promise<number> {
     switch (tokenType) {
       case TokenTypeEnum.ACCESS:
         const accessTokenPayload = await this.jwtService.verifyAsync(token, {
@@ -59,8 +59,9 @@ export class AuthService {
       case TokenTypeEnum.CONFIRMATION:
         const confirmTokenPayload = await this.jwtService.verifyAsync(token, {
           secret: process.env.JWT_CONFIRMATION_SECRET,
-          maxAge: process.env.JWT_CONFIRMATION_TIME,
+          maxAge: '1d',
         });
+        console.log('confirmTokenPayload', confirmTokenPayload);
         return confirmTokenPayload.id;
       case TokenTypeEnum.RESET_PASSWORD:
         const resetTokenPayload = await this.jwtService.verifyAsync(token, {

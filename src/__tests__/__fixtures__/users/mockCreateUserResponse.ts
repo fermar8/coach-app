@@ -8,6 +8,7 @@ export const mockCreateUserResponse: UserEntity = {
   email: mockCreateUserDto.email,
   phone: mockCreateUserDto.phone,
   password: '123456789',
+  isConfirmed: false,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
