@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { CacheModule, CacheStore } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-redis-store';
+import type { RedisClientOptions } from 'redis';
 import { ConfigModule } from '@nestjs/config';
 import {
   AcceptLanguageResolver,
@@ -20,6 +23,13 @@ import { CommonModule, CommonService } from './modules/common';
 
 @Module({
   imports: [
+    CacheModule.register<RedisClientOptions>({
+      store: redisStore as unknown as CacheStore,
+      socket: {
+        host: process.env.HOST,
+        port: 6379,
+      },
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.development', '.env.test'],
