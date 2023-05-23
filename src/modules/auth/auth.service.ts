@@ -4,10 +4,16 @@ import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from '../../domain/users/entities';
 import { TokenTypeEnum } from '../../domain/auth/types';
 import { FastifyReply } from 'fastify';
+import { IAuthResult } from '../../domain/auth/interfaces';
+import { I18nContext } from 'nestjs-i18n';
+import { CommonService } from '../common/common.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly commonService: CommonService,
+  ) {}
 
   public async createJwtToken(
     user: Omit<UserEntity, 'password'>,
@@ -61,7 +67,6 @@ export class AuthService {
           secret: process.env.JWT_CONFIRMATION_SECRET,
           maxAge: '1d',
         });
-        console.log('confirmTokenPayload', confirmTokenPayload);
         return confirmTokenPayload.id;
       case TokenTypeEnum.RESET_PASSWORD:
         const resetTokenPayload = await this.jwtService.verifyAsync(token, {
@@ -79,20 +84,30 @@ export class AuthService {
     ]);
   }
 
-  public saveRefreshCookie(
+  public saveRfCookieAndSendUserAndAccessCookie(
+    i18n: I18nContext,
     res: FastifyReply,
-    refreshToken: string,
+    authResult: IAuthResult,
   ): FastifyReply {
     const refreshTime = process.env.JWT_REFRESH_TIME as unknown as number;
+    const confirmedMessage = this.commonService.generateMessage(
+      i18n.t('users.confirmation_message'),
+    );
+    console.log('confirmedMessage', confirmedMessage);
     return res
-      .cookie('rf', refreshToken, {
+      .cookie('rf', authResult.refreshToken, {
         secure: true,
         httpOnly: true,
         signed: true,
         path: '/users',
         expires: new Date(Date.now() + refreshTime * 1000),
       })
-      .header('Content-Type', 'application/json');
+      .header('Content-Type', 'application/json')
+      .send({
+        user: authResult.user,
+        accessToken: authResult.accessToken,
+        message: confirmedMessage.message,
+      });
   }
 
   public async hashPassword(password: string): Promise<string> {

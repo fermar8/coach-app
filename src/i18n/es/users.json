@@ -3,5 +3,7 @@
         "error_already_exists": "Un usuario con ese correo o teléfono ya existe en la base de datos",
         "error_create_error": "El usuario no pudo ser creado",
         "error_not_found": "El usuario no pudo ser encontrado",
-        "error_invalid_credentials": "Credenciales de usuario incorrectas"
+        "error_invalid_credentials": "Credenciales de usuario incorrectas",
+
+        "confirmation_message": "El usuario ha sido confirmado correctamente"
 }

@@ -82,14 +82,13 @@ export class UsersController {
     @I18n() i18n: I18nContext,
     @Body() confirmEmailDto: ConfirmEmailDto,
     @Res() res: FastifyReply,
-  ): Promise<Omit<IAuthResult, 'refreshToken'>> {
+  ): Promise<void> {
     const result = await this.usersService.confirmEmail(i18n, confirmEmailDto);
-    await this.authService.saveRefreshCookie(res, result.refreshToken);
-    const resultWithoutRefreshToken = this.commonService.excludeFieldFromObject(
+    await this.authService.saveRfCookieAndSendUserAndAccessCookie(
+      i18n,
+      res,
       result,
-      ['refreshToken'],
     );
-    return resultWithoutRefreshToken;
   }
 
   /*

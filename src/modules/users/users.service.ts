@@ -100,18 +100,18 @@ export class UsersService {
         confirmEmailDto.confirmationToken,
         TokenTypeEnum.CONFIRMATION,
       );
-      console.log('id', id);
       const user = await this.usersRepository.getUserById(id);
       if (user.isConfirmed) {
         throw new BadRequestException(i18n.t('email.error_already_confirmed'));
       }
       user.isConfirmed = true;
       const updatedUser = await this.usersRepository.updateUserById(id, user);
+      const updatedUserWithoutPassword =
+        this.commonService.excludeFieldFromObject(updatedUser, ['password']);
       const [accessToken, refreshToken] =
         await this.authService.generateAuthTokens(user);
-      return { user: updatedUser, accessToken, refreshToken };
+      return { user: updatedUserWithoutPassword, accessToken, refreshToken };
     } catch (err) {
-      console.log('error', err);
       if (!(err instanceof BadRequestException)) {
         throw new InternalServerErrorException(
           i18n.t('email.error_while_confirming_email'),
