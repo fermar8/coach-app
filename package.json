@@ -13,6 +13,7 @@
     "start:debug": "dotenv -e .env.development nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "prisma:generate:dev": "dotenv -e .env.development -- npx prisma generate",
     "prisma:migrate:dev": "dotenv -e .env.development -- npx prisma migrate dev",
     "prisma:migrate:test": "dotenv -e .env.test -- npx prisma migrate reset --force --skip-seed",
     "test": "dotenv -e .env.test -- npx prisma migrate reset --force --skip-seed && dotenv -e .env.test -- jest --runInBand",
