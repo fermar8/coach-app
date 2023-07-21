@@ -7,12 +7,13 @@ import { UserEntity } from '../../domain/users/entities';
 import { IAuthResult } from '../../domain/auth/interfaces';
 import UsersModuleErrorMessages from '../../errorHandling/users/errorMessages';
 import CommonModuleErrorMessages from '../../errorHandling/common/errorMessages';
-import { FastifyReply } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import {
   Controller,
   Post,
   Body,
   Res,
+  Req,
   HttpCode,
   HttpStatus,
   UsePipes,
@@ -29,7 +30,6 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { IMessage } from 'src/domain/common/interfaces';
-import { I18n, I18nContext } from 'nestjs-i18n';
 
 @ApiTags('users')
 @Controller('users')
@@ -57,10 +57,11 @@ export class UsersController {
     description: UsersModuleErrorMessages.USER_CREATE_ERROR,
   })
   async createUser(
-    @I18n() i18n: I18nContext,
     @Body() createUserDto: CreateUserDto,
+    @Req() request: FastifyRequest,
   ): Promise<IMessage> {
-    return await this.usersService.createUser(i18n, createUserDto);
+    const locale = request.cookies['lang'] || 'en';
+    return await this.usersService.createUser(createUserDto, locale);
   }
 
   @Post('/confirm-email')
@@ -79,15 +80,19 @@ export class UsersController {
     description: CommonModuleErrorMessages.COMMON_UNEXPECTED_ERROR,
   })
   async confirmEmail(
-    @I18n() i18n: I18nContext,
     @Body() confirmEmailDto: ConfirmEmailDto,
     @Res() res: FastifyReply,
+    @Req() request: FastifyRequest,
   ): Promise<void> {
-    const result = await this.usersService.confirmEmail(i18n, confirmEmailDto);
+    const locale: string = request.cookies['lang'] || 'en';
+    const result: IAuthResult = await this.usersService.confirmEmail(
+      confirmEmailDto,
+      locale,
+    );
     await this.authService.saveRfCookieAndSendUserAndAccessCookie(
-      i18n,
       res,
       result,
+      locale,
     );
   }
 

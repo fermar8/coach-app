@@ -5,7 +5,6 @@ import {
   UnauthorizedException,
   NotFoundException,
 } from '@nestjs/common';
-import { I18nContext } from 'nestjs-i18n';
 import { AuthService } from '../auth/auth.service';
 import { CommonService } from '../common/common.service';
 import { MailerService } from '../mailer/mailer.service';
@@ -17,6 +16,7 @@ import { TokenTypeEnum } from '../../domain/auth/types';
 import { ConfirmEmailDto } from '../../domain/auth/dto';
 import { IAuthResult } from '../../domain/auth/interfaces';
 import PrismaErrorCodes from '../../errorHandling/prisma/errorCodes';
+import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class UsersService {
@@ -25,13 +25,15 @@ export class UsersService {
     private readonly authService: AuthService,
     private readonly mailerService: MailerService,
     private readonly commonService: CommonService,
+    private readonly i18n: I18nService,
   ) {}
 
   public async createUser(
-    i18n: I18nContext,
     createUserDto: CreateUserDto,
+    locale: string,
   ): Promise<IMessage> {
     try {
+      console.log('locale', locale);
       createUserDto.password = await this.authService.hashPassword(
         createUserDto.password,
       );
@@ -42,20 +44,24 @@ export class UsersService {
         user,
         TokenTypeEnum.CONFIRMATION,
       );
-      this.mailerService.sendConfirmationEmail(user, confirmationToken, i18n);
-      const confirmationEmailMessage: string = i18n.t(
+
+      this.mailerService.sendConfirmationEmail(user, confirmationToken, locale);
+      const confirmationEmailMessage: string = this.i18n.translate(
         'email.confirmation_message',
+        { lang: locale },
       );
       return this.commonService.generateMessage(confirmationEmailMessage);
     } catch (err) {
       if (err.code === PrismaErrorCodes.UNIQUE_CONSTRAINT_VIOLATION) {
         throw new BadRequestException(
-          i18n.t('users.error_already_exists'),
+          this.i18n.translate('users.error_already_exists', { lang: locale }),
           err.message,
         );
       } else {
         throw new InternalServerErrorException(
-          i18n.t('common.error_unexpected_error'),
+          this.i18n.translate('common.error_unexpected_error', {
+            lang: locale,
+          }),
           err.message,
         );
       }
@@ -92,8 +98,8 @@ export class UsersService {
   }
 
   public async confirmEmail(
-    i18n: I18nContext,
     confirmEmailDto: ConfirmEmailDto,
+    locale: string,
   ): Promise<IAuthResult> {
     try {
       const id: number = await this.authService.verifyToken(
@@ -102,7 +108,11 @@ export class UsersService {
       );
       const user = await this.usersRepository.getUserById(id);
       if (user.isConfirmed) {
-        throw new BadRequestException(i18n.t('email.error_already_confirmed'));
+        throw new BadRequestException(
+          this.i18n.translate('email.error_already_confirmed', {
+            lang: locale,
+          }),
+        );
       }
       user.isConfirmed = true;
       const updatedUser = await this.usersRepository.updateUserById(id, user);
@@ -114,7 +124,9 @@ export class UsersService {
     } catch (err) {
       if (!(err instanceof BadRequestException)) {
         throw new InternalServerErrorException(
-          i18n.t('email.error_while_confirming_email'),
+          this.i18n.translate('email.error_while_confirming_email', {
+            lang: locale,
+          }),
         );
       } else {
         throw err;

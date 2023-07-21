@@ -5,14 +5,15 @@ import { UserEntity } from '../../domain/users/entities';
 import { TokenTypeEnum } from '../../domain/auth/types';
 import { FastifyReply } from 'fastify';
 import { IAuthResult } from '../../domain/auth/interfaces';
-import { I18nContext } from 'nestjs-i18n';
 import { CommonService } from '../common/common.service';
+import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly commonService: CommonService,
+    private readonly i18n: I18nService,
   ) {}
 
   public async createJwtToken(
@@ -85,13 +86,13 @@ export class AuthService {
   }
 
   public saveRfCookieAndSendUserAndAccessCookie(
-    i18n: I18nContext,
     res: FastifyReply,
     authResult: IAuthResult,
+    locale: string,
   ): FastifyReply {
     const refreshTime = process.env.JWT_REFRESH_TIME as unknown as number;
     const confirmedMessage = this.commonService.generateMessage(
-      i18n.t('users.confirmation_message'),
+      this.i18n.t('users.confirmation_message', { lang: locale }),
     );
     console.log('confirmedMessage', confirmedMessage);
     return res

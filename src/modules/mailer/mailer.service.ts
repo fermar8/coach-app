@@ -5,12 +5,13 @@ import * as sgMail from '@sendgrid/mail';
 import { join } from 'path';
 import { ITemplates, ITemplatedData } from '../../domain/mailer/interfaces';
 import { UserEntity } from '../../domain/users/entities';
-import { I18nContext } from 'nestjs-i18n';
+import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class MailerService {
   private readonly templates: ITemplates;
-  constructor() {
+
+  constructor(private readonly i18n: I18nService) {
     this.templates = {
       confirmation: MailerService.parseTemplate('confirmation.hbs'),
       resetPassword: MailerService.parseTemplate('reset-password.hbs'),
@@ -46,19 +47,39 @@ export class MailerService {
   public async sendConfirmationEmail(
     user: UserEntity,
     token: string,
-    i18n: I18nContext,
+    locale: string,
   ): Promise<void> {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
     const { email, name } = user;
-    const subject = i18n.t('email.confirmation_email_subject');
+    const subject: string = this.i18n.t('email.confirmation_email_subject', {
+      lang: locale,
+    });
     const html = this.templates.confirmation({
       name,
-      welcomeText: i18n.t('email.confirmation_welcome_text'),
-      clickText: i18n.t('email.confirmation_click_text'),
-      hereText: i18n.t('email.confirmation_here_text'),
-      activateAccountText: i18n.t('email.confirmation_activate_account_text'),
-      linkExpirationText: i18n.t('email.confirmation_link_expiration_text'),
-      luckText: i18n.t('email.confirmation_luck_text'),
+      welcomeText: this.i18n.t('email.confirmation_welcome_text', {
+        lang: locale,
+      }),
+      clickText: this.i18n.t('email.confirmation_click_text', {
+        lang: locale,
+      }),
+      hereText: this.i18n.t('email.confirmation_here_text', {
+        lang: locale,
+      }),
+      activateAccountText: this.i18n.t(
+        'email.confirmation_activate_account_text',
+        {
+          lang: locale,
+        },
+      ),
+      linkExpirationText: this.i18n.t(
+        'email.confirmation_link_expiration_text',
+        {
+          lang: locale,
+        },
+      ),
+      luckText: this.i18n.t('email.confirmation_luck_text', {
+        lang: locale,
+      }),
       link: `https://${process.env.DOMAIN}/auth/confirm/${token}`,
     });
     const emailToSend = await MailerService.buildEmail(email, subject, html);
