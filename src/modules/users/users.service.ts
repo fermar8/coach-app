@@ -33,7 +33,6 @@ export class UsersService {
     locale: string,
   ): Promise<IMessage> {
     try {
-      console.log('locale', locale);
       createUserDto.password = await this.authService.hashPassword(
         createUserDto.password,
       );
@@ -44,7 +43,6 @@ export class UsersService {
         user,
         TokenTypeEnum.CONFIRMATION,
       );
-
       this.mailerService.sendConfirmationEmail(user, confirmationToken, locale);
       const confirmationEmailMessage: string = this.i18n.translate(
         'email.confirmation_message',
