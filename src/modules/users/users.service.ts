@@ -70,7 +70,9 @@ export class UsersService {
     userDto: UserDto,
   ): Promise<Omit<UserEntity, 'password'>> {
     try {
-      const user = await this.usersRepository.getUserByEmail(userDto.email);
+      const user: UserEntity = await this.usersRepository.getUserByEmail(
+        userDto.email,
+      );
       const isPasswordValid = await this.authService.validateUserPassword(
         userDto.password,
         user.password,
@@ -100,11 +102,11 @@ export class UsersService {
     locale: string,
   ): Promise<IAuthResult> {
     try {
-      const id: number = await this.authService.verifyToken(
+      const userId: number = await this.authService.verifyToken(
         confirmEmailDto.confirmationToken,
         TokenTypeEnum.CONFIRMATION,
       );
-      const user = await this.usersRepository.getUserById(id);
+      const user: UserEntity = await this.usersRepository.getUserById(userId);
       if (user.isConfirmed) {
         throw new BadRequestException(
           this.i18n.translate('email.error_already_confirmed', {
@@ -113,8 +115,11 @@ export class UsersService {
         );
       }
       user.isConfirmed = true;
-      const updatedUser = await this.usersRepository.updateUserById(id, user);
-      const updatedUserWithoutPassword =
+      const updatedUser: UserEntity = await this.usersRepository.updateUserById(
+        userId,
+        user,
+      );
+      const updatedUserWithoutPassword: Omit<UserEntity, keyof string[]> =
         this.commonService.excludeFieldFromObject(updatedUser, ['password']);
       const [accessToken, refreshToken] =
         await this.authService.generateAuthTokens(user);

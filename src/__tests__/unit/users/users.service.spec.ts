@@ -29,12 +29,15 @@ import {
   mockCreateUserResponse,
 } from '../../__fixtures__/users';
 
-describe('UsersService', () => {
+import { TokenTypeEnum } from '../../../domain/auth/types';
+
+describe('USERS SERVICE', () => {
   let usersService: UsersService;
   let usersRepository: DeepMocked<UsersRepository>;
   let authService: DeepMocked<AuthService>;
   let mailerService: DeepMocked<MailerService>;
   let i18nService: DeepMocked<I18nService>;
+  let commonService: DeepMocked<CommonService>;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -79,6 +82,11 @@ describe('UsersService', () => {
           provide: I18nService,
           useValue: createMock<I18nService>(),
         },
+        CommonService,
+        {
+          provide: CommonService,
+          useValue: createMock<CommonService>(),
+        },
         JwtService,
       ],
     }).compile();
@@ -86,6 +94,7 @@ describe('UsersService', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     authService = moduleRef.get(AuthService);
     mailerService = moduleRef.get(MailerService);
+    commonService = moduleRef.get(CommonService);
     i18nService = moduleRef.get(I18nService);
     i18nService.translate = jest.fn().mockImplementation((key, options) => {
       // Check the key and options, and return a mock translation string
@@ -133,6 +142,70 @@ describe('UsersService', () => {
 
       await expect(
         usersService.createUser(mockCreateUserDto, 'en'),
+      ).rejects.toThrow(InternalServerErrorException);
+    });
+  });
+
+  describe('confirmEmail', () => {
+    it('should return user, accessToken and refreshToken', async () => {
+      authService.verifyToken.mockResolvedValue(1);
+      usersRepository.getUserById.mockResolvedValue(mockCreateUserResponse);
+      usersRepository.updateUserById.mockResolvedValue(mockCreateUserResponse);
+      commonService.excludeFieldFromObject = jest
+        .fn()
+        .mockImplementation(() => {
+          return mockCreateUserResponse;
+        });
+      authService.generateAuthTokens.mockResolvedValue([
+        'anAccessToken',
+        'aRefreshToken',
+      ]);
+
+      const result = await usersService.confirmEmail(
+        { confirmationToken: 'aConfirmationToken' },
+        'en',
+      );
+
+      expect(authService.verifyToken).toHaveBeenCalledWith(
+        'aConfirmationToken',
+        TokenTypeEnum.CONFIRMATION,
+      );
+      expect(usersRepository.getUserById).toHaveBeenCalledWith(1);
+      expect(usersRepository.updateUserById).toHaveBeenCalledWith(
+        1,
+        mockCreateUserResponse,
+      );
+      expect(authService.generateAuthTokens).toHaveBeenCalledWith(
+        mockCreateUserResponse,
+      );
+      expect(result).toEqual({
+        user: mockCreateUserResponse,
+        accessToken: 'anAccessToken',
+        refreshToken: 'aRefreshToken',
+      });
+    });
+    it('should fail with status 400 when email has already been confirmed', async () => {
+      mockCreateUserResponse.isConfirmed = true;
+      authService.verifyToken.mockResolvedValue(1);
+      usersRepository.getUserById.mockResolvedValue(mockCreateUserResponse);
+
+      await expect(
+        usersService.confirmEmail(
+          { confirmationToken: 'aConfirmationToken' },
+          'en',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+    it('should fail with status 500 when any other error', async () => {
+      authService.verifyToken.mockRejectedValue({
+        message: 'Any other error',
+      });
+
+      await expect(
+        usersService.confirmEmail(
+          { confirmationToken: 'aConfirmationToken' },
+          'en',
+        ),
       ).rejects.toThrow(InternalServerErrorException);
     });
   });
