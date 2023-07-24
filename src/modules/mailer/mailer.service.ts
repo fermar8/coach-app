@@ -21,7 +21,6 @@ export class MailerService {
   private static parseTemplate(
     templateName: string,
   ): Handlebars.TemplateDelegate<ITemplatedData> {
-    console.log('templatePath', join(__dirname, 'templates', templateName));
     const templateText = readFileSync(
       join(__dirname, 'templates', templateName),
       'utf-8',

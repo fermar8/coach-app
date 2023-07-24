@@ -125,11 +125,9 @@ export class UsersService {
         await this.authService.generateAuthTokens(user);
       return { user: updatedUserWithoutPassword, accessToken, refreshToken };
     } catch (err) {
-      console.log('hey2', err);
       if (err instanceof BadRequestException) {
         throw err;
       } else if (err instanceof NotFoundException) {
-        console.log('hey', err);
         throw new NotFoundException(
           this.i18n.translate('users.error_not_found', {
             lang: locale,

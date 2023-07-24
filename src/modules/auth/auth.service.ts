@@ -94,7 +94,6 @@ export class AuthService {
     const confirmedMessage = this.commonService.generateMessage(
       this.i18n.t('users.confirmation_message', { lang: locale }),
     );
-    console.log('confirmedMessage', confirmedMessage);
     return res
       .cookie('rf', authResult.refreshToken, {
         secure: true,
