@@ -46,7 +46,7 @@ export class UsersRepository {
       }
       return user;
     } catch (error) {
-      throw new InternalServerErrorException();
+      throw error;
     }
   }
 
@@ -67,7 +67,7 @@ export class UsersRepository {
       }
       return user;
     } catch (error) {
-      throw new InternalServerErrorException();
+      throw error;
     }
   }
 

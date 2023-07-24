@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import {
   InternalServerErrorException,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import * as path from 'path';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
@@ -195,6 +196,19 @@ describe('USERS SERVICE', () => {
           'en',
         ),
       ).rejects.toThrow(BadRequestException);
+    });
+    it('should fail with status 404 when user is not found in database', async () => {
+      authService.verifyToken.mockResolvedValue(1);
+      usersRepository.getUserById.mockImplementation(() => {
+        throw new NotFoundException('User not found');
+      });
+
+      await expect(
+        usersService.confirmEmail(
+          { confirmationToken: 'aConfirmationToken' },
+          'en',
+        ),
+      ).rejects.toThrow(NotFoundException);
     });
     it('should fail with status 500 when any other error', async () => {
       authService.verifyToken.mockRejectedValue({
