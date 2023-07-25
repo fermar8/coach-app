@@ -5,10 +5,7 @@ import {
   mockCreateUserDto,
   mockCreateUserResponse,
 } from '../../__fixtures__/users';
-import {
-  NotFoundException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 
 describe('USERS REPOSITORY', () => {
   let usersRepository: UsersRepository;

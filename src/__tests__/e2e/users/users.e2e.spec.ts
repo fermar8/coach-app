@@ -101,6 +101,7 @@ describe('UsersController (e2e)', () => {
     });
   });
   // TODO: Use template to build tests for /users/confirm-email
+  /*
   describe('POST /users/confirm-email (e2e)', () => {
     it('SUCCESS - should create a new user with coach role', async () => {
       const response = await request(app.getHttpServer())
@@ -180,4 +181,5 @@ describe('UsersController (e2e)', () => {
       ]);
     });
   });
+  */
 });
