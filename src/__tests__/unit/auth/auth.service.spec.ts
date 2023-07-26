@@ -74,4 +74,21 @@ describe('AuthService', () => {
       expect(result).toEqual(accessToken);
     });
   });
+  describe('verifyToken', () => {
+    it('should verify and return the user ID for the given token', async () => {
+      const token = 'exampleToken';
+      const tokenType = TokenTypeEnum.ACCESS;
+      const userId = 123;
+
+      jwtService.verifyAsync.mockResolvedValue({ id: userId });
+
+      const result = await authService.verifyToken(token, tokenType);
+
+      expect(jwtService.verifyAsync).toHaveBeenCalledWith(token, {
+        secret: process.env.COOKIE_SECRET,
+        maxAge: process.env.JWT_ACCESS_TIME,
+      });
+      expect(result).toEqual(userId);
+    });
+  });
 });
