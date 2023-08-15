@@ -96,8 +96,6 @@ export class UsersController {
     );
   }
 
-  /*
-
   @Post('/login')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe({ transform: true }))
@@ -109,16 +107,19 @@ export class UsersController {
   })
   @ApiInternalServerErrorResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: UsersModuleErrorMessages.USER_REPOSITORY_ERROR,
+    description: UsersModuleErrorMessages.USER_UNEXPECTED_ERROR,
   })
   async loginUser(
-    @Res({ passthrough: true }) response: FastifyReply,
     @Body() body: UserDto,
-  ): Promise<Omit<UserEntity, 'password'>> {
-    const user = await this.usersService.loginUser(body);
-    const cookie = await this.authService.createJwtToken(user);
-    response.header('Set-Cookie', cookie);
-    return user;
+    @Res() res: FastifyReply,
+    @Req() request: FastifyRequest,
+  ): Promise<void> {
+    const locale: string = request.cookies['lang'] || 'en';
+    const result: IAuthResult = await this.usersService.loginUser(body, locale);
+    await this.authService.saveRfCookieAndSendUserAndAccessCookie(
+      res,
+      result,
+      locale,
+    );
   }
-  */
 }

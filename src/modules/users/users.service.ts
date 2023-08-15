@@ -68,23 +68,36 @@ export class UsersService {
 
   public async loginUser(
     userDto: UserDto,
-  ): Promise<Omit<UserEntity, 'password'>> {
+    locale: string,
+  ): Promise<IAuthResult> {
     try {
       const user: UserEntity = await this.usersRepository.getUserByEmail(
         userDto.email,
       );
+      if (!user.isConfirmed) {
+        throw new BadRequestException(
+          this.i18n.translate('users.error_user_not_confirmed', {
+            lang: locale,
+          }),
+        );
+      }
       const isPasswordValid = await this.authService.validateUserPassword(
         userDto.password,
         user.password,
       );
       if (!isPasswordValid) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException(
+          this.i18n.translate('users.error_invalid_credentials', {
+            lang: locale,
+          }),
+        );
       }
-      const userWithoutPassword = this.commonService.excludeFieldFromObject(
-        user,
-        ['password'],
-      );
-      return userWithoutPassword;
+      const userWithoutPassword: Omit<UserEntity, keyof string[]> =
+        this.commonService.excludeFieldFromObject(user, ['password']);
+
+      const [accessToken, refreshToken] =
+        await this.authService.generateAuthTokens(user);
+      return { user: userWithoutPassword, accessToken, refreshToken };
     } catch (err) {
       if (
         err instanceof NotFoundException ||
