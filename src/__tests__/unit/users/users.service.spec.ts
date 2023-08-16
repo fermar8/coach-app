@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   BadRequestException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import * as path from 'path';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
@@ -218,6 +219,87 @@ describe('USERS SERVICE', () => {
       await expect(
         usersService.confirmEmail(
           { confirmationToken: 'aConfirmationToken' },
+          'en',
+        ),
+      ).rejects.toThrow(InternalServerErrorException);
+    });
+  });
+
+  describe('loginUser', () => {
+    it('should return user, accessToken and refreshToken', async () => {
+      mockCreateUserResponse.isConfirmed = true;
+      usersRepository.getUserByEmail.mockResolvedValue(mockCreateUserResponse);
+      authService.validateUserPassword.mockResolvedValue(true);
+      commonService.excludeFieldFromObject = jest
+        .fn()
+        .mockImplementation(() => {
+          return mockCreateUserResponse;
+        });
+      authService.generateAuthTokens.mockResolvedValue([
+        'anAccessToken',
+        'aRefreshToken',
+      ]);
+
+      const result = await usersService.loginUser(
+        { email: mockCreateUserResponse.email, password: '123456789' },
+        'en',
+      );
+
+      expect(usersRepository.getUserByEmail).toHaveBeenCalledWith(
+        mockCreateUserResponse.email,
+      );
+      expect(authService.validateUserPassword).toHaveBeenCalledWith(
+        '123456789',
+        '123456789',
+      );
+      expect(authService.generateAuthTokens).toHaveBeenCalledWith(
+        mockCreateUserResponse,
+      );
+      expect(result).toEqual({
+        user: mockCreateUserResponse,
+        accessToken: 'anAccessToken',
+        refreshToken: 'aRefreshToken',
+      });
+    });
+    it('should fail with status 400 when email has not been confirmed', async () => {
+      mockCreateUserResponse.isConfirmed = false;
+      usersRepository.getUserByEmail.mockResolvedValue(mockCreateUserResponse);
+
+      await expect(
+        usersService.loginUser(
+          { email: mockCreateUserResponse.email, password: '123456789' },
+          'en',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+    it('should fail with status 401 when invalid credentials', async () => {
+      mockCreateUserResponse.isConfirmed = true;
+      usersRepository.getUserByEmail.mockResolvedValue(mockCreateUserResponse);
+      authService.validateUserPassword.mockResolvedValue(false);
+
+      await expect(
+        usersService.loginUser(
+          { email: mockCreateUserResponse.email, password: '123456789' },
+          'en',
+        ),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+    it('should fail with status 500 when any other error', async () => {
+      mockCreateUserResponse.isConfirmed = true;
+      usersRepository.getUserByEmail.mockResolvedValue(mockCreateUserResponse);
+      authService.validateUserPassword.mockResolvedValue(true);
+      commonService.excludeFieldFromObject = jest
+        .fn()
+        .mockImplementation(() => {
+          return mockCreateUserResponse;
+        });
+      authService.generateAuthTokens.mockRejectedValue({
+        message: 'Any other error',
+      });
+
+      await expect(
+        usersService.loginUser(
+          { email: mockCreateUserResponse.email, password: '123456789' },
           'en',
         ),
       ).rejects.toThrow(InternalServerErrorException);

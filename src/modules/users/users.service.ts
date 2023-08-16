@@ -100,12 +100,12 @@ export class UsersService {
       return { user: userWithoutPassword, accessToken, refreshToken };
     } catch (err) {
       if (
-        err instanceof NotFoundException ||
+        err instanceof BadRequestException ||
         err instanceof UnauthorizedException
       ) {
-        throw new UnauthorizedException();
-      } else {
         throw err;
+      } else {
+        throw new InternalServerErrorException();
       }
     }
   }
